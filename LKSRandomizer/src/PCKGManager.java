@@ -14,6 +14,7 @@ public class PCKGManager {
 	ArrayList<byte[]> filesContents = new ArrayList<byte[]>();
 	ArrayList<String> pacFilesNames = new ArrayList<String>();
 	ArrayList<PCKGManager> pacFilesContents = new ArrayList<PCKGManager>();
+	//makes new PackManager then extracts the contents
 	public PCKGManager(byte[] data)
 	{
 		file = data;
@@ -25,8 +26,9 @@ public class PCKGManager {
 		this.name = name;
 		extractPAC();
 	}
+	//turns the pacFile into ArrayLists
 	private void extractPAC()
-	{//turns the pacFile into ArrayLists
+	{
 		byte[] fileSize; //Size of the current file(used to get size of file contents array
 		byte[] fileName; //Name of current file
 		byte[] fileContents = {0x01,0x01}; //Contents of current file
@@ -55,20 +57,21 @@ public class PCKGManager {
 			nextCnt = ByteBuffer.wrap(nextSize).getInt();
 			nameHeader+=nextCnt;
 			fileContents = Arrays.copyOfRange(file, fileCntSrt, fileCntSrt + ByteBuffer.wrap(fileSize).getInt());	
-			
+			//makes the file name as a string and removes all the 0x00's
 			try {theName = new String(fileName, "ISO-8859-1");} catch (Exception error) {System.out.println("Failed to Extract due to being an unsupported encoding");break;}
 			theName = theName.replaceAll("\0+$", "");
 			filesNames.add(theName);
 			filesContents.add(fileContents);
+			//makes new Pack Manager with the file
 			if(isPAC(fileContents))
 			{
 				pacFilesContents.add(new PCKGManager(fileContents));
 				pacFilesNames.add(theName);
 			}
+			
 			fileSrtPos += nextCnt;
 			nameSrt += nextCnt;
 			fileCntSrt += nextCnt;
-
 			}
 		}
 	private void rePAC()
