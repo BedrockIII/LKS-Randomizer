@@ -1,0 +1,16 @@
+Installation:
+	Copy the "LKS Randomizer" folder into the "Riivolution" folder of Dolphin Emulator
+	Run "Randomizer v2.1.jar" via commandprompt. You need to have java installed to do so
+		open command prompt
+		type "java -jar {file name location with quotation marks, you can get this by rightclicking thwe file and choosing Copy as Path}"
+Optional: Enabling Doctors
+	Rightclick your LKS Rom
+	Choose Properties
+	Switch to the Gecko Codes tab
+	Click "Add New Code..." in the bottom left
+	Paste The code in the Required Gecko Codes Folder into Dolphin
+Playing:
+	Rightclick your LKS Rom
+	Choose Start with Riivolution Patches...
+	Enable the LKS Randomizer
+	Optional: Create a Dolphin Tile by clicking Save as Preset...
