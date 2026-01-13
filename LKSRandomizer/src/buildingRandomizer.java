@@ -2,24 +2,47 @@
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Random;
 
 public class buildingRandomizer {
 	private ArrayList<byte[]> lines = new ArrayList<byte[]>();
 	private ArrayList<byte[][]> parts = new ArrayList<byte[][]>();
 	private byte[] bytes;
-	final int random1 = (int)(Math.random() * 13);
-	final int random2 = (int)(Math.random() * 12);
-	final int random3 = (int)(Math.random() * 18);
-	final int random4 = (int)(Math.random() * 17);
+	int usefulJobIndex = 13;
+	int usefulJobBy = 2;
+	int buildingJobBy = 4;
+	int cuttingJobBy = 10;
+	int miningJobBy = 17;
+	Random random = new Random();
 	byte[] jobArr;
 	byte[] job2Arr;
-	Integer[] jobs = {31,31,31,25,33,34,35,30,32,32,32,32,26,37,37,28,36,36,36,24,38,29,27,39,40,41,42};
-	public buildingRandomizer(byte[] data, boolean allHouses, boolean extraJobs)
+	boolean allHouses = false;
+	boolean extraJobs = false;
+	private ArrayList<byte[]> jobCodes = new ArrayList<byte[]>();
+	private ArrayList<byte[]> workplaceCodes = new ArrayList<byte[]>();
+	boolean hasBuilder = false, hasCutter = false, hasMiner = false;
+	Integer[] jobs = {25,26,27,31,30,32,33,34,35,23,24,28,37,36,29,38,39,40,41,42};
+	public buildingRandomizer(byte[] data, boolean allHouses, boolean extraJobs,int seed)
 	{
+		random = new Random(seed);
+		this.allHouses = allHouses;
+		this.extraJobs = extraJobs;
 		bytes = data;
 		extractData(data);
 		extractLine();
-		randomize(allHouses, extraJobs);
+		randomize();
+		packLines();
+		packAll();
+	}
+	public buildingRandomizer(byte[] data, boolean allHouses, boolean extraJobs)
+	{
+		random = new Random((int)(Math.random()*Integer.MAX_VALUE));
+		this.allHouses = allHouses;
+		this.extraJobs = extraJobs;
+		bytes = data;
+		extractData(data);
+		extractLine();
+		randomize();
 		packLines();
 		packAll();
 	}
@@ -81,239 +104,405 @@ public class buildingRandomizer {
 	{
 		return bytes;
 	}
-	public void randomize(boolean allHouses, boolean extraJobs)
+	private void makeJobCodeArray()
 	{
-		//boolean firstJob = false;
-		//boolean secondJob = false;
-		boolean carpenter = false;
-		boolean cutter = false;
-		ArrayList<byte[]> jobCodes = new ArrayList<byte[]>();
-
-		ArrayList<byte[]> workplaceCodes = new ArrayList<byte[]>();
-		
-		jobCodes.add(new byte[]{0x33,0x31});//farmer
-		jobCodes.add(new byte[]{0x33,0x31});//farmer
-		jobCodes.add(new byte[]{0x33,0x31});//farmer
-		jobCodes.add(new byte[]{0x32,0x35});//grunt
-		jobCodes.add(new byte[]{0x33,0x33});//build1
-		jobCodes.add(new byte[]{0x33,0x34});//build2
-		jobCodes.add(new byte[]{0x33,0x35});//build3
-		jobCodes.add(new byte[]{0x33,0x30});//lumber
-		jobCodes.add(new byte[]{0x33,0x32});//miner
-		jobCodes.add(new byte[]{0x33,0x32});//miner
-		jobCodes.add(new byte[]{0x33,0x32});//miner
-		jobCodes.add(new byte[]{0x33,0x32});//miner
-		jobCodes.add(new byte[]{0x32,0x36});//hardened soldier
+		jobCodes.add("31".getBytes());//farmer
+		jobCodes.add("31".getBytes());//farmer
+		jobCodes.add("31".getBytes());//farmer
+		jobCodes.add("25".getBytes());//grunt
+		jobCodes.add("33".getBytes());//build1
+		jobCodes.add("34".getBytes());//build2
+		jobCodes.add("35".getBytes());//build3
+		jobCodes.add("30".getBytes());//lumber
+		jobCodes.add("32".getBytes());//miner
+		jobCodes.add("32".getBytes());//miner
+		jobCodes.add("32".getBytes());//miner
+		jobCodes.add("32".getBytes());//miner
+		jobCodes.add("26".getBytes());//hardened soldier
+		if(extraJobs)
+		{
+			jobCodes.add("27".getBytes());//steel
+			jobCodes.add("39".getBytes());//egg
+			jobCodes.add("40".getBytes());//caster
+			jobCodes.add("41".getBytes());//soba
+			jobCodes.add("42".getBytes());//champ
+			jobCodes.add("29".getBytes());//wizard
+			jobCodes.add("38".getBytes());//doctor
+			if(allHouses)
+			{
+				jobCodes.add("38".getBytes());//doctor
+				//kid
+			}
+		}
 		//bad attackers
-		jobCodes.add(new byte[]{0x33,0x37});//chef
-		jobCodes.add(new byte[]{0x33,0x37});//chef
-		jobCodes.add(new byte[]{0x32,0x38});//bowman
-		jobCodes.add(new byte[]{0x33,0x36});//merchant
-		jobCodes.add(new byte[]{0x33,0x36});//merchant
-		jobCodes.add(new byte[]{0x33,0x36});//merchant
-		jobCodes.add(new byte[]{0x32,0x34});//man
-		if(extraJobs)
-		{
-			jobCodes.add(new byte[]{0x33,0x38});//doctor
-			jobCodes.add(new byte[]{0x33,0x38});//doctor
-			jobCodes.add(new byte[]{0x32,0x39});//wizard
-			jobCodes.add(new byte[]{0x32,0x37});//steel
-			//jobCodes.add(new byte[]{0x33,0x39});//egg
-			//jobCodes.add(new byte[]{0x34,0x30});//caster
-			//jobCodes.add(new byte[]{0x34,0x31});//soba
-			//jobCodes.add(new byte[]{0x34,0x32});//champ
+		jobCodes.add("37".getBytes());//chef
+		jobCodes.add("37".getBytes());//chef
+		jobCodes.add("28".getBytes());//bowman
+		jobCodes.add("36".getBytes());//merchant
+		jobCodes.add("36".getBytes());//merchant
+		jobCodes.add("36".getBytes());//merchant
+		jobCodes.add("24".getBytes());//man
+	}
+	private void makeHouseArray()
+	{
+		if(allHouses){
+			workplaceCodes.add("DAT2 10106".getBytes());//Liams House
+			workplaceCodes.add("DAT2 10107".getBytes());//Verdes Hosue
 		}
-		workplaceCodes.add(new byte[] {0x44, 0x41, 0x54, 0x32, 0x20, 0x31, 0x30, 0x33, 0x35, 0x30});//frm1
-		workplaceCodes.add(new byte[] {0x44, 0x41, 0x54, 0x32, 0x20, 0x31, 0x30, 0x31, 0x36, 0x39});//soldier1
-		
-		workplaceCodes.add(new byte[] {0x44, 0x41, 0x54, 0x32, 0x20, 0x31, 0x30, 0x31, 0x36, 0x38});//carp
-		workplaceCodes.add(new byte[] {0x44, 0x41, 0x54, 0x32, 0x20, 0x31, 0x30, 0x31, 0x33, 0x34});//hunter
-		
-		workplaceCodes.add(new byte[] {0x44, 0x41, 0x54, 0x32, 0x20, 0x31, 0x30, 0x31, 0x33, 0x38});//farmers
-		workplaceCodes.add(new byte[] {0x44, 0x41, 0x54, 0x32, 0x20, 0x31, 0x30, 0x31, 0x33, 0x37});
-		workplaceCodes.add(new byte[] {0x44, 0x41, 0x54, 0x32, 0x20, 0x31, 0x30, 0x31, 0x37, 0x31});//merchants
-		workplaceCodes.add(new byte[] {0x44, 0x41, 0x54, 0x32, 0x20, 0x31, 0x30, 0x31, 0x37, 0x34});
-		workplaceCodes.add(new byte[] {0x44, 0x41, 0x54, 0x32, 0x20, 0x31, 0x30, 0x31, 0x37, 0x34});
-		workplaceCodes.add(new byte[] {0x44, 0x41, 0x54, 0x32, 0x20, 0x31, 0x30, 0x31, 0x33, 0x36});//jack
-		
-		workplaceCodes.add(new byte[] {0x44, 0x41, 0x54, 0x32, 0x20, 0x31, 0x30, 0x31, 0x34, 0x36});//miners
-		workplaceCodes.add(new byte[] {0x44, 0x41, 0x54, 0x32, 0x20, 0x31, 0x30, 0x31, 0x34, 0x37});
-		workplaceCodes.add(new byte[] {0x44, 0x41, 0x54, 0x32, 0x20, 0x31, 0x30, 0x31, 0x35, 0x36});//build2
-		
-		workplaceCodes.add(new byte[] {0x44, 0x41, 0x54, 0x32, 0x20, 0x31, 0x30, 0x31, 0x35, 0x30});//school
-		workplaceCodes.add(new byte[] {0x44, 0x41, 0x54, 0x32, 0x20, 0x31, 0x30, 0x31, 0x35, 0x33});//chef 1
-		
-		workplaceCodes.add(new byte[] {0x44, 0x41, 0x54, 0x32, 0x20, 0x31, 0x30, 0x31, 0x35, 0x31});//hardened
-		
-		workplaceCodes.add(new byte[] {0x44, 0x41, 0x54, 0x32, 0x20, 0x31, 0x30, 0x31, 0x35, 0x32});//chef 2
-		
-		workplaceCodes.add(new byte[] {0x44, 0x41, 0x54, 0x32, 0x20, 0x31, 0x30, 0x31, 0x34, 0x38});//miners2
-		workplaceCodes.add(new byte[] {0x44, 0x41, 0x54, 0x32, 0x20, 0x31, 0x30, 0x31, 0x34, 0x39});
-		workplaceCodes.add(new byte[] {0x44, 0x41, 0x54, 0x32, 0x20, 0x31, 0x30, 0x32, 0x34, 0x31});//gig
-		
-		if(extraJobs)
-		{
-			//workplaceCodes.add(new byte[] {0x44, 0x41, 0x54, 0x32, 0x20, 0x31, 0x30, 0x31, 0x36, 0x30});//doctor
-			//workplaceCodes.add(new byte[] {0x44, 0x41, 0x54, 0x32, 0x20, 0x31, 0x30, 0x31, 0x36, 0x31});//doctor
-			//workplaceCodes.add(new byte[] {0x44, 0x41, 0x54, 0x32, 0x20, 0x31, 0x30, 0x34, 0x37, 0x34});//wizard
-			//workplaceCodes.add(new byte[] {0x44, 0x41, 0x54, 0x32, 0x20, 0x31, 0x30, 0x31, 0x36, 0x34});//steel stand-in
-			//jobCodes.add(new byte[]{0x33,0x39});//egg
-			//jobCodes.add(new byte[]{0x34,0x30});//caster
-			//jobCodes.add(new byte[]{0x34,0x31});//soba
-			//jobCodes.add(new byte[]{0x34,0x32});//champ
-		}
-		
+		workplaceCodes.add("DAT2 10350".getBytes());//frm1
+		workplaceCodes.add("DAT2 10169".getBytes());//soldier1
+		//Castle Town pt 2
+		workplaceCodes.add("DAT2 10168".getBytes());//Regular Carpenter Hut
+		//Grassland Town
+		workplaceCodes.add("DAT2 10134".getBytes());//Animal Hunter Hut
 		if(allHouses)
 		{
-			//TODO, I AM NOT MAKING A LIST OF ALL THE HOMES BY 4/22/23
+			//Castle Town pt 2
+			workplaceCodes.add("DAT2 10100".getBytes());//Wooden House A
+			workplaceCodes.add("DAT2 10109".getBytes());//Wooden and Stone House B
+			workplaceCodes.add("DAT2 10112".getBytes());//Wooden and Stone House E
+			workplaceCodes.add("DAT2 10212".getBytes());//Corobo's House
+			//Grassland Town
+			workplaceCodes.add("DAT2 10132".getBytes());//Poor House C
+			workplaceCodes.add("DAT2 10135".getBytes());//Fishing House
+			workplaceCodes.add("DAT2 10130".getBytes());//Poor House A
+			workplaceCodes.add("DAT2 10105".getBytes());//Wooden House F
+		}
+		//Farmers Town
+		workplaceCodes.add("DAT2 10138".getBytes());//farmers
+		workplaceCodes.add("DAT2 10137".getBytes());//farmers
+		workplaceCodes.add("DAT2 10171".getBytes());//merchants
+		workplaceCodes.add("DAT2 10174".getBytes());//merchants
+		workplaceCodes.add("DAT2 10175".getBytes());//merchants
+		workplaceCodes.add("DAT2 10136".getBytes());//jack
+		if(allHouses)
+		{
+			workplaceCodes.add("DAT2 10103".getBytes());//Wooden House D
+			workplaceCodes.add("DAT2 10162".getBytes());//Small Florist
+			workplaceCodes.add("DAT2 10102".getBytes());//Wooden House C
+			workplaceCodes.add("DAT2 10139".getBytes());//Ranch A
+			workplaceCodes.add("DAT2 10170".getBytes());//Shop 1
+		}
+		//Stone City
+		workplaceCodes.add("DAT2 10146".getBytes());//Mine
+		workplaceCodes.add("DAT2 10147".getBytes());//Mine
+		workplaceCodes.add("DAT2 10156".getBytes());//Mega Carpenters Hut
+		//Soldier Town
+		workplaceCodes.add("DAT2 10151".getBytes());//Hardened Soldier's Hut
+		if(allHouses)
+		{
+			workplaceCodes.add("DAT2 10116".getBytes());//Stone House C
+			workplaceCodes.add("DAT2 10172".getBytes());//shop 3
+			workplaceCodes.add("DAT2 10110".getBytes());//wood and stone house c
+			workplaceCodes.add("DAT2 10173".getBytes());//shop 4
+			workplaceCodes.add("DAT2 10167".getBytes());//tailor B
+			workplaceCodes.add("DAT2 10143".getBytes());//Bar
+			workplaceCodes.add("DAT2 10117".getBytes());//stone house d
+			workplaceCodes.add("DAT2 10118".getBytes());//^ e
+		}
+		//Royal City
+		workplaceCodes.add("DAT2 10150".getBytes());//School
+		workplaceCodes.add("DAT2 10153".getBytes());//Chef 1
+		if(allHouses)
+		{
+			workplaceCodes.add("DAT2 10163".getBytes());//Large Florist Hut
+			workplaceCodes.add("DAT2 10120".getBytes());//Skyscraper House A
+			workplaceCodes.add("DAT2 10121".getBytes());//Skyscraper House B
+			workplaceCodes.add("DAT2 10122".getBytes());//Skyscraper House C
+			workplaceCodes.add("DAT2 10123".getBytes());//Skyscraper House D
+			workplaceCodes.add("DAT2 10124".getBytes());//Skyscraper House E
+			workplaceCodes.add("DAT2 10125".getBytes());//Skyscraper House F
+		}
+		
+		//Gourmet Town
+		workplaceCodes.add("DAT2 10152".getBytes());//Chef 2
+		if(allHouses)
+		{
+			workplaceCodes.add("DAT2 10154".getBytes());//bake A
+			workplaceCodes.add("DAT2 10155".getBytes());//bake B
+			workplaceCodes.add("DAT2 10142".getBytes());//Orchard B
+			workplaceCodes.add("DAT2 10141".getBytes());//Orchard A
+			workplaceCodes.add("DAT2 10113".getBytes());//Wooden and Stone House F
+		}
+		//Glamour Town
+		if(extraJobs||allHouses)
+		{
+			workplaceCodes.add("DAT2 10160".getBytes());//Clinic
+			workplaceCodes.add("DAT2 10161".getBytes());//Hospital
+		}
+		if(allHouses)
+		{
+			workplaceCodes.add("DAT2 10158".getBytes());//Theater
+			workplaceCodes.add("DAT2 10128".getBytes());//Rich House C
+			workplaceCodes.add("DAT2 10164".getBytes());//Jeweler A
+			workplaceCodes.add("DAT2 10165".getBytes());//Jeweler B
+			workplaceCodes.add("DAT2 10126".getBytes());//Rich House A
+			workplaceCodes.add("DAT2 10127".getBytes());//Rich House B
+		}
+		//Miners Town
+		workplaceCodes.add("DAT2 10148".getBytes());//Mine
+		workplaceCodes.add("DAT2 10149".getBytes());//Mine
+		workplaceCodes.add("DAT2 10241".getBytes());// Giga Carpenter's Hut
+		if(allHouses)
+		{
+			workplaceCodes.add("DAT2 10115".getBytes());//Stone House B
+			workplaceCodes.add("DAT2 10114".getBytes());//Stone House A
+			workplaceCodes.add("DAT2 10119".getBytes());//Stone House F
+		}
+		//Magic Town
+		if(extraJobs||allHouses)
+		{
+			workplaceCodes.add("DAT2 10176".getBytes());//Wizard
+		}
+	}
+	public void randomize()
+	{
+		
+		makeJobCodeArray();
+		makeHouseArray();
+		if(allHouses)
+		{
+			usefulJobBy = 4;
+			buildingJobBy = 14;
+			cuttingJobBy = 25;
+			miningJobBy = 52;
+		}
+		if(extraJobs)
+		{
+			usefulJobIndex = 18;
+		}
+		//generate the first (free) job
+		//this will be different for allHouses and not allHouses
+		byte[] currentJobCode = jobCodes.remove((int)(random.nextDouble(0,1)*usefulJobIndex));
+		checkJobCode(currentJobCode);
+		int currentBuildingIndex = -1;
+		if(allHouses)
+		{
+			currentBuildingIndex = (int)(random.nextDouble(0,1)*usefulJobBy);
+			if(currentBuildingIndex<2)//if it is one of the og houses
+			{
+				jobArr = currentJobCode;
+				setBuildingJob(workplaceCodes.remove(currentBuildingIndex), currentJobCode);
+				job2Arr = currentJobCode;
+				workplaceCodes.remove(0);//remove the other starting house
+				
+				//decrease all by 2 because 2 were removed
+				buildingJobBy --;
+				cuttingJobBy --;
+				miningJobBy --;
+				buildingJobBy --;
+				cuttingJobBy --;
+				miningJobBy --;
+			}
+			else
+			{
+				jobArr = currentJobCode;
+				setBuildingJob(workplaceCodes.remove(currentBuildingIndex), currentJobCode);
+				usefulJobBy--;
+				usefulJobIndex--;
+				
+				currentJobCode = jobCodes.remove((int)(random.nextDouble(0,1)*usefulJobIndex));
+				checkJobCode(currentJobCode);
+				currentBuildingIndex = (int)(random.nextDouble(0,1)*usefulJobBy);
+				job2Arr = currentJobCode;
+				setBuildingJob(workplaceCodes.remove(currentBuildingIndex), currentJobCode);
+				
+				workplaceCodes.remove(0);
+				workplaceCodes.remove(0);//remove the two starting homes
+				buildingJobBy -=4;
+				cuttingJobBy -=4;
+				miningJobBy -=4;
+			}
 		}
 		else
 		{
-			jobArr = new byte[0];
-			job2Arr = new byte[0];
-			for(int i = 0; i < parts.size(); i++)//farm home 1
+			jobArr = currentJobCode;
+			setBuildingJob(workplaceCodes.remove(currentBuildingIndex), currentJobCode);
+			usefulJobBy--;
+			usefulJobIndex--;
+			
+			currentJobCode = jobCodes.remove((int)(random.nextDouble(0,1)*usefulJobIndex));
+			checkJobCode(currentJobCode);
+			currentBuildingIndex = (int)(Math.random()*usefulJobBy);
+			job2Arr = currentJobCode;
+			setBuildingJob(workplaceCodes.remove(currentBuildingIndex), currentJobCode);
+			
+			buildingJobBy -=2;
+			cuttingJobBy -=2;
+			miningJobBy -=2;
+		}
+		if(hasBuilder==false)
+		{
+			double oddsForCraftian = .01;
+			double oddsForGiga = .05;
+			double oddsForMega = .25;
+			double num = random.nextDouble(0,1);
+			
+			currentBuildingIndex = (int)(random.nextDouble(0,1)*buildingJobBy);
+			
+			if(extraJobs&&num<oddsForCraftian)
 			{
-				if(parts.get(i).length > 0 && parts.get(i)[0].length == 10 && Arrays.equals(parts.get(i)[0],workplaceCodes.get(0)))
+				currentJobCode = getJobCode("42".getBytes());
+				if(currentJobCode!=null)
 				{
-					jobArr = jobCodes.get(random1);
-					workplaceCodes.remove(0);
-					carpenter = random1 == 4 || random1 == 5 || random1 ==6;
-					cutter = random1 == 7;
-					byte[][] temp1 = parts.get(i);
-					temp1[4] = jobCodes.remove(random1);
-					parts.set(i, temp1);
-				}
-				
-			}
-			for(int i = 0; i < parts.size(); i++)//guard home
-			{
-				if(parts.get(i).length > 0 && parts.get(i)[0].length == 10 && Arrays.equals(parts.get(i)[0],workplaceCodes.get(0)))
-				{
-					job2Arr = jobCodes.get(random2);
-					workplaceCodes.remove(0);
-					if(!carpenter)
-					{
-						if(random1 < 4) carpenter = random2 == 4 || random2 == 5 || random2 ==3;
-						else carpenter = random2 == 4 || random2 == 5 || random2 ==6;
-					}
-					if(!cutter)
-					{
-						if(random1 < 7) cutter = random2 == 6;
-						else cutter = random2 == 7;
-					}
-					byte[][] temp2 = parts.get(i);
-					temp2[4] = jobCodes.remove(random2);
-					parts.set(i, temp2);
-					break;
-				}
-				
-			}
-			for(int i = 0; i < parts.size(); i++)//carpenter home
-			{
-				if(parts.get(i).length > 0 && parts.get(i)[0].length == 10 && Arrays.equals(parts.get(i)[0],workplaceCodes.get(0)))
-				{
-					workplaceCodes.remove(0);
-					if(!carpenter)
-					{
-						if(random1 < 4) //fisrt shifts it
-						{
-							if(random2 < 3) carpenter = random3 == 4 || random3 == 2 || random3 == 3;//2 shifts
-							else carpenter = random3 == 4 || random3 == 5 || random3 ==3; // 1 shift
-						}
-						else if(random2 < 4) carpenter = random3 == 4 || random3 == 5 || random3 ==3; // 1 shift
-						else carpenter = random3 == 4 || random3 == 5 || random3 ==6; // no shifts
-					}
-					if(!cutter)
-					{
-						if(random1 < 7) 
-							{
-								if(random2 < 6) cutter = random3 == 5; //2 shifts
-								else cutter = random3 == 6; // 1 shift
-							}
-						else if (random2 < 7) cutter = random3 == 6; // 1 shift
-						else cutter = random3 == 7;
-					}
-					byte[][] temp2 = parts.get(i);
-					temp2[4] = jobCodes.remove(random3);
-					parts.set(i, temp2);
-				}
-				
-			}
-			for(int i = 0; i < parts.size(); i++)//hunter home
-			{
-				if(parts.get(i).length > 0 && parts.get(i)[0].length == 10 && Arrays.equals(parts.get(i)[0],workplaceCodes.get(0)))
-				{
-					byte[][] temp2 = parts.get(i);
-					int ranB = (int)(Math.random() * 3) + 4;
-					workplaceCodes.remove(0);
-					if(!carpenter)
-					{
-						if(random1 < 4)
-						{
-							ranB --;
-							if(random2 < 3)
-							{
-								ranB --;
-								if(random3 < 2)    ranB --;
-							} else if(random3 < 3) ranB --;
-						} else if(random2 < 4)
-						{
-							ranB --;
-							if(random3 < 3)        ranB --;
-						} else if(random3 < 4)     ranB --;
-						carpenter = true;
-						temp2[4] = jobCodes.remove(ranB);
-						parts.set(i, temp2);
-					} else if(!cutter)
-					{
-						byte[][] temp3 = parts.get(i);
-						for(int n = 0; n < jobCodes.size(); n++)
-						{
-							if(Arrays.equals(jobCodes.get(n), new byte[]{0x33,0x30})) 
-							{
-								cutter = random4 == n;
-								if(cutter)temp3[4] = jobCodes.remove(n);
-							}
-						}
-						parts.set(i, temp3);
-					}
+					checkJobCode(currentJobCode);
+					setBuildingJob(workplaceCodes.remove(currentBuildingIndex), currentJobCode);
 				}
 			}
-			if(!cutter)
+			else if(num<oddsForGiga)
 			{
-				int iRanOuttaNames = (int)(Math.random()*6);
-				for(int i = 0; i < parts.size(); i++)
+				currentJobCode = getJobCode("35".getBytes());
+				checkJobCode(currentJobCode);
+				setBuildingJob(workplaceCodes.remove(currentBuildingIndex), currentJobCode);
+			}
+			else if(num<oddsForMega)
+			{
+				currentJobCode = getJobCode("34".getBytes());
+				checkJobCode(currentJobCode);
+				setBuildingJob(workplaceCodes.remove(currentBuildingIndex), currentJobCode);
+			}
+			else
+			{
+				currentJobCode = getJobCode("33".getBytes());
+				checkJobCode(currentJobCode);
+				setBuildingJob(workplaceCodes.remove(currentBuildingIndex), currentJobCode);
+			}
+			cuttingJobBy --;
+			miningJobBy --;
+		}
+		if(hasCutter==false)
+		{
+			double oddsForCraftian = .01;
+			double num = random.nextDouble(0,1);
+			
+			currentBuildingIndex = (int)(random.nextDouble(0,1)*cuttingJobBy);
+			
+			if(extraJobs&&num<oddsForCraftian)
+			{
+				currentJobCode = getJobCode("42".getBytes());
+				if(currentJobCode!=null)
 				{
-					if(parts.get(i).length > 0 && parts.get(i)[0].length == 10 && Arrays.equals(parts.get(i)[0],workplaceCodes.get(iRanOuttaNames)))
-					{;
-						workplaceCodes.remove(iRanOuttaNames);
-						cutter=true;
-						byte[][] temp3 = parts.get(i);
-						for(int n = 0; n < jobCodes.size(); n++)
-						{
-							if(Arrays.equals(jobCodes.get(n), new byte[]{0x33,0x30})) temp3[4] = jobCodes.remove(n);
-						}
-						parts.set(i, temp3);
-					}
+					checkJobCode(currentJobCode);
+					setBuildingJob(workplaceCodes.remove(currentBuildingIndex), currentJobCode);
+				}
+				hasCutter = false;
+			}
+			else
+			{
+				currentJobCode = getJobCode("30".getBytes());
+				checkJobCode(currentJobCode);
+				setBuildingJob(workplaceCodes.remove(currentBuildingIndex), currentJobCode);
+			}
+			miningJobBy --;
+		}
+		if(hasCutter==false)
+		{
+			double oddsForCraftian = .01;
+			double num = random.nextDouble(0,1);
+			
+			currentBuildingIndex = (int)(random.nextDouble(0,1)*miningJobBy);
+			
+			if(extraJobs&&num<oddsForCraftian)
+			{
+				currentJobCode = getJobCode("42".getBytes());
+				if(currentJobCode!=null)
+				{
+					setBuildingJob(workplaceCodes.remove(currentBuildingIndex), currentJobCode);
 				}
 			}
-			while(workplaceCodes.size()>0)
+			else
 			{
-				int rem = (int)(workplaceCodes.size()*Math.random());
-				int ram = (int)(jobCodes.size()*Math.random());
-				for(int i = 0; i < parts.size(); i++)
-				{
-					if(parts.get(i).length > 0 && parts.get(i)[0].length == 10 && Arrays.equals(parts.get(i)[0],workplaceCodes.get(rem)))
-					{
-						workplaceCodes.remove(rem);
-						byte[][] temp = parts.get(i);
-						temp[4] = jobCodes.get(ram);
-						parts.set(i, temp);
-						break;
-					}
-				}
+				currentJobCode = getJobCode("32".getBytes());
+				setBuildingJob(workplaceCodes.remove(currentBuildingIndex), currentJobCode);
 			}
 		}
+		while(jobCodes.size()>0)
+		{
+			currentBuildingIndex = (int)(random.nextDouble(0,1)*workplaceCodes.size());
+			currentJobCode = jobCodes.remove(0);
+			setBuildingJob(workplaceCodes.remove(currentBuildingIndex), currentJobCode);
+		}
+		//clear out remaining values
+		while(workplaceCodes.size()>0)
+		{
+			setBuildingJob(workplaceCodes.remove(0), "-1".getBytes());
+		}
+	}
+	private byte[] getJobCode(byte[] ret) 
+	{
+		for(int i = 0; i <jobCodes.size(); i++)
+		{
+			if(same(jobCodes.get(i),ret))
+			{
+				jobCodes.remove(i);
+				return ret;
+			}
+		}
+		return null;
+	}
+	private void checkJobCode(byte[] currentJobCode) 
+	{
+		//set the boolean flags if job meets requirements
+		if(same(currentJobCode,"42".getBytes()))
+		{
+			hasBuilder = true;
+			hasCutter = true;
+			hasMiner = true;
+			return;
+		}
+		if(same(currentJobCode,"35".getBytes()))
+		{
+			hasBuilder = true;
+			return;
+		}
+		if(same(currentJobCode,"34".getBytes()))
+		{
+			hasBuilder = true;
+			return;
+		}
+		if(same(currentJobCode,"33".getBytes()))
+		{
+			hasBuilder = true;
+			return;
+		}
+		if(same(currentJobCode,"30".getBytes()))
+		{
+			hasCutter = true;
+			return;
+		}
+		if(same(currentJobCode,"32".getBytes()))
+		{
+			hasMiner = true;
+			return;
+		}
+	}
+	private void setBuildingJob(byte[] currentBuildingHeader, byte[] currentJobCode) 
+	{
+		int index = getIndexOfBuilding(currentBuildingHeader);
+		byte[][] buildingLine = parts.get(index);
+		buildingLine[1] = currentJobCode;
+		buildingLine[4] = currentJobCode;
+		parts.set(index, buildingLine);
+		
+		
+		byte[][] buildingLine1 = parts.get(index-1);
+		if(buildingLine1[0].toString().indexOf("DAT ")!=-1)
+		{
+			if(same(currentJobCode,"-1".getBytes()))buildingLine1[1] = "1".getBytes();
+			else buildingLine1[1] = "2".getBytes();
+		}
+		parts.set(index-1, buildingLine1);
+	}
+	private int getIndexOfBuilding(byte[] currentBuildingHeader)
+	{
+		for(int i = 0; i < parts.size(); i++)
+		{
+			if(parts.get(i).length > 0 && parts.get(i)[0].length == 10 && Arrays.equals(parts.get(i)[0],currentBuildingHeader))
+			{
+				return i;
+			}
+		}
+		return -1;
 	}
 	private boolean same(byte[] one, byte[] two) {
 		if(one.length != two.length) return false;
@@ -325,43 +514,26 @@ public class buildingRandomizer {
 	}
 	public int freeJobs(int place)
 	{
-		ArrayList<byte[]> jobCodes2 = new ArrayList<byte[]>();
-		jobCodes2.add(new byte[]{0x32,0x35});//grunt
-		jobCodes2.add(new byte[]{0x32,0x36});//hardened soldier
-		jobCodes2.add(new byte[]{0x30,0x30,0x32,0x37});//steel
-		jobCodes2.add(new byte[]{0x33,0x31});//farmer
-		jobCodes2.add(new byte[]{0x33,0x30});//lumber
-		jobCodes2.add(new byte[]{0x33,0x32});//miner
-		jobCodes2.add(new byte[]{0x33,0x33});//build1
-		jobCodes2.add(new byte[]{0x33,0x34});//build2
-		jobCodes2.add(new byte[]{0x33,0x35});//build3
-		jobCodes2.add(new byte[]{0x32,0x33});//kid
-		jobCodes2.add(new byte[]{0x32,0x38});//bowman
-		jobCodes2.add(new byte[]{0x32,0x34});//man
-		jobCodes2.add(new byte[]{0x33,0x37});//chef
-		jobCodes2.add(new byte[]{0x33,0x36});//merchant
-		jobCodes2.add(new byte[]{0x33,0x38});//doctor
-		jobCodes2.add(new byte[]{0x32,0x39});//wizard
-		jobCodes2.add(new byte[]{0x33,0x39});//egg
-		jobCodes2.add(new byte[]{0x34,0x30});//caster
-		jobCodes2.add(new byte[]{0x30,0x34,0x31});//soba
-		jobCodes2.add(new byte[]{0x30,0x34,0x32});//champ
-		if(place==1)
+		byte[] freeJob = new byte[1];
+		if(place == 1)
 		{
-			for(int i = 0; i < jobCodes2.size(); i++)
+			freeJob = jobArr;
+		}
+		else freeJob = job2Arr;
+		String jobCode = "" + (char)freeJob[0]+(char)freeJob[1];
+		
+		int code = Integer.parseInt(jobCode);
+		for(int i = 0; i < jobs.length; i++)
+		{
+			if(jobs[i]==code)
 			{
-				if(same(jobCodes2.get(i), jobArr)) return i;
+				return i;
 			}
 		}
-		if(place==1)
-		{
-			for(int i = 0; i < jobCodes2.size(); i++)
-			{
-				if(same(jobCodes2.get(i), job2Arr)) return i;
-			}
-		}
-		return 0;
+		return -1;
 	}
+
+		
 	private void extractData(byte[] data)
 	{
 		byte[] line;

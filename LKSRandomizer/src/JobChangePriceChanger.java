@@ -1,12 +1,15 @@
-
+import java.util.Arrays;
+import java.util.Random;
 
 public class JobChangePriceChanger 
 {
 	//TODO nunUsualJobs
 	final static String spaceHeader = "PRICE ";
 	String[][] data;
-	public JobChangePriceChanger(int max, boolean nonUsualJobs, boolean uniquePerJob)
+	static Random random = new Random();
+	public JobChangePriceChanger(int max, boolean nonUsualJobs, boolean uniquePerJob, int seed)
 	{
+		random = new Random(seed);
 		data = randomizer(max, nonUsualJobs, uniquePerJob);
 	}
 	private static String[][] randomizer(int max, boolean nonUsualJobs, boolean uniquePerJob)
@@ -18,7 +21,7 @@ public class JobChangePriceChanger
 			{
 				for(int j = 1; j < 21; j++)
 				{
-					file[i][j] = Integer.valueOf((int)(Math.random() * max)).toString();
+					file[i][j] = Integer.valueOf((int)(random.nextDouble(0,1) * max)).toString();
 				}
 				file[i][i+1] = Integer.valueOf(-1).toString();
 			}
@@ -26,7 +29,7 @@ public class JobChangePriceChanger
 		{
 			for(int i = 0; i < 20; i++)
 			{
-				file[0][i+1] = Integer.valueOf((int)(Math.random() * max)).toString();
+				file[0][i+1] = Integer.valueOf((int)(random.nextDouble(0,1) * max)).toString();
 				for(int j = 1; j < 20; j++)
 				{
 					for(int n = 0; n < 21; n++)
@@ -85,7 +88,8 @@ public class JobChangePriceChanger
 		file[18][0] = spaceHeader + 41;
 		file[19][0] = spaceHeader + 42;
 		
-
+		if(Main.DEBUGMODE) System.out.println(Arrays.toString(file));
+			
 		return file;
 	}
 	public byte[] generateArray()
