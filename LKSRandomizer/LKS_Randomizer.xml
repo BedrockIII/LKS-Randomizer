@@ -1,0 +1,20 @@
+<wiidisc version="1">
+    <id game="RO3" />
+    <options>
+        <section name="Randomized Jobs">
+            <option name="/Randomized Jobs">
+                <choice name="Enabled">
+                    <patch id="LKSMods" />
+                </choice>
+            </option>
+        </section>
+    </options>
+    <patch id="LKSMods">
+		<savegame external="/riivolution/LKS Randomizer Saves" clone="true" />
+		<folder external="/LKS Randomizer/Models" disc="/chr" />
+        <folder external="/LKS Randomizer/Contents" disc="/res" />
+        <folder external="/LKS Randomizer/Text" disc="/mes/1" />
+		<folder external="/LKS Randomizer/Monsters" disc="/map/ms" create ="true"/>
+		<folder external="/LKS Randomizer/Monsters" disc="/map/wb" create ="true"/>
+    </patch>
+</wiidisc>
