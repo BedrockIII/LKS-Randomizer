@@ -10,7 +10,9 @@ Optional: Enabling Doctors
 	Click "Add New Code..." in the bottom left
 	Paste The code in the Required Gecko Codes Folder into Dolphin
 Playing:
+	Move the LKS Randomizer xml file into the "riivolution" folder. It should be in the "Riivolution" folder.
 	Rightclick your LKS Rom
 	Choose Start with Riivolution Patches...
 	Enable the LKS Randomizer
+
 	Optional: Create a Dolphin Tile by clicking Save as Preset...
