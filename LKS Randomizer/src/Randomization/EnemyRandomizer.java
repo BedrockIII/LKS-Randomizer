@@ -1,13 +1,10 @@
 package Randomization;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Random;
 
-import LKSFileManagerTools.MobGroup;
-import LKSFileManagerTools.MobObject;
+import MSDBManager.MobGroup;
+import MSDBManager.MobObject;
 
 public class EnemyRandomizer 
 {
@@ -58,7 +55,7 @@ public class EnemyRandomizer
 		
 		for(int i = 0; i<Objects.size(); i++)
 		{
-			if(isInArray(modCodes, Objects.get(i).getMobCode()))
+			if(isInArray(modCodes, Objects.get(i).getModCode()))
 			{
 				randomizedList[i]=Objects.get(i);
 			}
@@ -104,7 +101,7 @@ public class EnemyRandomizer
 		//save other Guardians
 		for(int i = 0; i<Group.size(); i++)
 		{//Group.get(i).getNumber()
-			if(isInArray(safeCodes, Group.get(i).getNumber()))
+			if(isInArray(safeCodes, Group.get(i).getGroupNumber()))
 			{
 				for(int j = Group.get(i).getObjectIndex(); j < Group.get(i).getObjectIndex()+Group.get(i).getObjectCount(); j++)
 				{
@@ -115,7 +112,7 @@ public class EnemyRandomizer
 		
 		for(int i = 0; i<Objects.size(); i++)
 		{
-			if(isInArray(modCodes, Objects.get(i).getMobCode()))
+			if(isInArray(modCodes, Objects.get(i).getModCode()))
 			{
 				randomizedList[i]=Objects.get(i);
 			}

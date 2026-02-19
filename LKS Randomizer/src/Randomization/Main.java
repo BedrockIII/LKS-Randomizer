@@ -1,26 +1,12 @@
 package Randomization;
 
 
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Scanner;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.border.Border;
-
-import LKSFileManagerTools.PCKGManager;
+import PCKGManager.PCKGManager;
 import RandomizerGui.RandomizerWindow;
 
 public class Main 
@@ -37,16 +23,11 @@ public class Main
 	public static void main(String args[])
 	{
 		guiAttempt();
-		System.out.println("LKS Randomizer Version 2.0");
+		System.out.println("LKS Randomizer Version 3.0");
 		System.out.println("**************************");
-		System.out.println("Added:\n\tSupport for seeds");
-		System.out.println("\tMonster Randomizer");
-		System.out.println("\t\tRemoved Enemies still referenced in the Randomizer have been recovered from the Februrary Beta");
-		System.out.println("\t\tMonster Randomizer no longer includes many gamebreaking monsters such as crashed ships");
-		System.out.println("\t");
-		System.out.println("Fixed:\n\tHouse Randomizer Should not softlock you");
-		System.out.println("\tThe Free Jobs Should work now");
-		System.out.println("\tFully reworked sorting algorythm for Jobs. OP Jobs are (hopefully) rarer");
+		System.out.println("Added:\n\tGUI");
+		System.out.println("Fixed:\n\tJob Randomizer Should Be Better");
+
 		
 		System.out.println("Enter the seed or leave blank for a random one.");
 		seedString = input.nextLine();
@@ -161,40 +142,40 @@ public class Main
 	}
 	private static void monsterRandomizer()
 	{
-		PCKGManager test;
+		PCKGManager normalMSDB;
 		try 
 		{
-			test = new PCKGManager(Files.readAllBytes(Paths.get(inputName + "\\Contents\\msDB.pac")));
+			normalMSDB = new PCKGManager(Files.readAllBytes(Paths.get(inputName + "\\Contents\\msDB.pac")));
 		} catch (IOException e) 
 		{
 			System.out.println("Failed to read file at: " + inputName + "\\Contents\\msDB.pac");
 			System.out.println("The Enemy Randomizer cannot continue and will now disable itself.");
 			return;
 		}
-		PCKGManager test1;
+		PCKGManager easyMSDB;
 		try 
 		{
-			test1 = new PCKGManager(Files.readAllBytes(Paths.get(inputName + "\\Contents\\msDB_EASY.pac")));
+			easyMSDB = new PCKGManager(Files.readAllBytes(Paths.get(inputName + "\\Contents\\msDB_EASY.pac")));
 		} catch (IOException e) 
 		{
 			System.out.println("Failed to read file at: " + inputName + "\\Contents\\msDB_EASY.pac");
 			System.out.println("The Enemy Randomizer cannot continue and will now disable itself.");
 			return;
 		}
-		PCKGManager test2;
+		PCKGManager hardMSDB;
 		try 
 		{
-			test2 = new PCKGManager(Files.readAllBytes(Paths.get(inputName + "\\Contents\\msDB_HARD.pac")));
+			hardMSDB = new PCKGManager(Files.readAllBytes(Paths.get(inputName + "\\Contents\\msDB_HARD.pac")));
 		} catch (IOException e) 
 		{
 			System.out.println("Failed to read file at: " + inputName + "\\Contents\\msDB_HARD.pac");
 			System.out.println("The Enemy Randomizer cannot continue and will now disable itself.");
 			return;
 		}
-		PCKGManager test3;
+		PCKGManager hellMSDB;
 		try 
 		{
-			test3 = new PCKGManager(Files.readAllBytes(Paths.get(inputName + "\\Contents\\msDB_HELL.pac")));
+			hellMSDB = new PCKGManager(Files.readAllBytes(Paths.get(inputName + "\\Contents\\msDB_HELL.pac")));
 		} catch (IOException e) 
 		{
 			System.out.println("Failed to read file at: " + inputName + "\\Contents\\msDB_HELL.pac");
@@ -202,42 +183,42 @@ public class Main
 			return;
 		}
 		
-		EnemyRandomizer rando = new EnemyRandomizer(test.getFile("MOP_14_OBJECT.lst"), seed, test.getFile("MOP_14_GROUP.lst"));
+		EnemyRandomizer rando = new EnemyRandomizer(normalMSDB.getFile("MOP_14_OBJECT.lst"), seed, normalMSDB.getFile("MOP_14_GROUP.lst"));
 		
 		
 		
 		byte[] objects = rando.toArr();
-		test.replaceFile("MOP_14_OBJECT.lst", objects);
+		normalMSDB.replaceFile("MOP_14_OBJECT.lst", objects);
 		try 
 		{
-			Files.write(Paths.get(inputName + "\\Contents\\msDB27.pac") , test.getFile() );
+			Files.write(Paths.get(inputName + "\\Contents\\msDB27.pac") , normalMSDB.getFile() );
 		} catch (IOException e) 
 		{
 			System.out.println("Failed to write file at: " + inputName + "\\Contents\\msDB27.pac");
 			System.out.println("The Enemy Randomizer will not be enabled for Normal Difficulty.");
 		}
-		test1.replaceFile("MOP_14_OBJECT.lst", objects);
+		easyMSDB.replaceFile("MOP_14_OBJECT.lst", objects);
 		try 
 		{
-			Files.write(Paths.get(inputName + "\\Contents\\msDB27_EASY.pac") , test1.getFile() );
+			Files.write(Paths.get(inputName + "\\Contents\\msDB27_EASY.pac") , easyMSDB.getFile() );
 		} catch (IOException e) 
 		{
 			System.out.println("Failed to write file at: " + inputName + "\\Contents\\msDB27_EASY.pac");
 			System.out.println("The Enemy Randomizer will not be enabled for Easy Difficulty.");
 		}
-		test2.replaceFile("MOP_14_OBJECT.lst", objects);
+		hardMSDB.replaceFile("MOP_14_OBJECT.lst", objects);
 		try 
 		{
-			Files.write(Paths.get(inputName + "\\Contents\\msDB27_HARD.pac") , test2.getFile() );
+			Files.write(Paths.get(inputName + "\\Contents\\msDB27_HARD.pac") , hardMSDB.getFile() );
 		} catch (IOException e) 
 		{
 			System.out.println("Failed to write file at: " + inputName + "\\Contents\\msDB27_HARD.pac");
 			System.out.println("The Enemy Randomizer will not be enabled for Hard Difficulty.");
 		}
-		test3.replaceFile("MOP_14_OBJECT.lst", objects);
+		hellMSDB.replaceFile("MOP_14_OBJECT.lst", objects);
 		try 
 		{
-			Files.write(Paths.get(inputName + "\\Contents\\msDB27_HELL.pac") , test3.getFile() );
+			Files.write(Paths.get(inputName + "\\Contents\\msDB27_HELL.pac") , hellMSDB.getFile() );
 		} catch (IOException e) 
 		{
 			System.out.println("Failed to write file at: " + inputName + "\\Contents\\msDB27_HELL.pac");

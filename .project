@@ -3,6 +3,7 @@
 	<name>LKS-Randomizer</name>
 	<comment></comment>
 	<projects>
+		<project>PCKGManager</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
