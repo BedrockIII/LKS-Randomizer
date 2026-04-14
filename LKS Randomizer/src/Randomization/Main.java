@@ -23,10 +23,10 @@ public class Main
 	public static void main(String args[])
 	{
 		guiAttempt();
-		System.out.println("LKS Randomizer Version 3.0");
+		System.out.println("LKS Randomizer Version 3.1");
 		System.out.println("**************************");
-		System.out.println("Added:\n\tGUI");
-		System.out.println("Fixed:\n\tJob Randomizer Should Be Better");
+		System.out.println("Added:\n\tExport Window");
+		System.out.println("Fixed:\n\tExporting");
 
 		
 		System.out.println("Enter the seed or leave blank for a random one.");

@@ -6,6 +6,11 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="LKS Randomizer/src"/>
+	<classpathentry excluding="src/|Contents/|Models/|Monsters/|Text/" kind="src" path="LKS Randomizer"/>
+	<classpathentry kind="src" path="LKS Randomizer/Contents"/>
+	<classpathentry kind="src" path="LKS Randomizer/Models"/>
+	<classpathentry kind="src" path="LKS Randomizer/Monsters"/>
+	<classpathentry kind="src" path="LKS Randomizer/Text"/>
 	<classpathentry exported="true" kind="src" path="/PCKGManager"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
