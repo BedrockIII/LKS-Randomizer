@@ -143,7 +143,7 @@ public class RandomizerWindow extends JFrame
 	private void randomize(JobRandomizerPanel jobRandomizer, RandomizerSeed seedPanel, MonsterRandomizerPanel monsterRandomizerPanel)
 	{
 		JFileChooser filePicker = new JFileChooser();
-	    filePicker.setSelectedFile(new File(""));
+	    filePicker.setSelectedFile(Paths.get("D:\\Dolphin_Emulator\\Load\\Riivolution\\").toFile());
 	    filePicker.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 	    int saveCode = filePicker.showSaveDialog(this);
 	    if(saveCode == JFileChooser.APPROVE_OPTION)
