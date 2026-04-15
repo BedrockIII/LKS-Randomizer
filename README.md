@@ -1,11 +1,17 @@
 The LKS Randomizer.
 
 To Randomize:
-  Run the jar with "java -jar <File Path>"
+  Run the jar via double clicking or with "java -jar <File Path>" in cmd
   Java must be Installed
   Apply desired settings
   Click the "Randomize" button at the bottom
   Navigate to the "Riivolution folder in dolphin emulator and select it"
+
+To Play:
+	Rightclick your LKS Rom
+	Choose Start with Riivolution Patches...
+	Enable the LKS Randomizer Mod
+	Optional: Create a Dolphin Tile by clicking Save as Preset...
 
 Options:
 
