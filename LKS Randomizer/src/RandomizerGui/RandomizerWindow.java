@@ -1,5 +1,6 @@
 package RandomizerGui;
 
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -25,11 +26,15 @@ public class RandomizerWindow extends JFrame
 	{
 		//String title = (args.length == 0 ? "LKS Randomizer" : args[0]);
 	    super("LKS Randomizer");
-	    setSize(400, 450);
+	    setMinimumSize(new Dimension(400, 300));
 	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    setLayout(new GridBagLayout());
 	    GridBagConstraints layout = new GridBagConstraints();
 	    layout.gridwidth = GridBagConstraints.REMAINDER;
+	    layout.fill = GridBagConstraints.HORIZONTAL;
+	    layout.weightx = 1.0;
+	    layout.weighty = 0.0;
+	    layout.anchor = GridBagConstraints.NORTH;
 	    JobRandomizerPanel jobRandomizer = new JobRandomizerPanel();
 	    RandomizerSeed seedPanel = new RandomizerSeed();
 	    MonsterRandomizerPanel monsterRandomizerPanel = new MonsterRandomizerPanel();
@@ -48,10 +53,12 @@ public class RandomizerWindow extends JFrame
 	    
 	    
 	    
-	    
-	    add(button);
+	    layout.weighty = 1.0;
+	    add(button, layout);
+	    pack();
 	    setVisible(true);
 	}
+	@SuppressWarnings("unused")
 	private static void monsterRandomizer(int seed, File outputFolder, String difficultyCode)
 	{
 		PCKGManager msDB = null;
@@ -63,10 +70,7 @@ public class RandomizerWindow extends JFrame
 			return;
 		}
 		
-		EnemyRandomizer rando = new EnemyRandomizer(msDB.getFile("MOP_14_OBJECT.lst"), seed, msDB.getFile("MOP_14_GROUP.lst"));
-		
-		byte[] objects = rando.toArr();
-		msDB.replaceFile("MOP_14_OBJECT.lst", objects);
+		EnemyRandomizer rando = new EnemyRandomizer(msDB, seed);
 		
 		Path directory = Paths.get(outputFolder.getAbsolutePath());
 		Path contentsFolder = directory.resolve("LKS Randomizer/Contents");

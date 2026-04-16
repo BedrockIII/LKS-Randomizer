@@ -4,21 +4,26 @@ import java.util.Arrays;
 import java.util.Random;
 
 import MSDBManager.MobGroup;
+import MSDBManager.MobMod;
 import MSDBManager.MobObject;
+import PCKGManager.PCKGManager;
 
 public class EnemyRandomizer 
 {
 	MobObject[] randomizedList = new MobObject[0];
 	ArrayList<MobObject> Objects = new ArrayList<MobObject>();
 	ArrayList<MobGroup> Group = new ArrayList<MobGroup>();
+	ArrayList<MobMod> Modifications = new ArrayList<MobMod>();
 	static Random random = new Random();
 	boolean includeObjects = true;
 	boolean objectsSeperate = false;
-	public EnemyRandomizer(byte[] data, int seed, byte[] groupData)
+	public EnemyRandomizer(PCKGManager data, int seed)
 	{
-		for(int i = 4; i<data.length; i+=40)
+		byte[] objectData = data.getFile("MOP_14_OBJECT.lst");
+		byte[] groupData = data.getFile("MOP_14_GROUP.lst");
+		for(int i = 4; i<objectData.length; i+=40)
 		{
-			Objects.add(new MobObject(Arrays.copyOfRange(data, i, i+40)));
+			Objects.add(new MobObject(Arrays.copyOfRange(objectData, i, i+40)));
 		}
 		for(int i = 4; i<groupData.length; i+=20)
 		{
@@ -26,24 +31,40 @@ public class EnemyRandomizer
 		}
 		randomizedList = new MobObject[Objects.size()];
 		random = new Random(seed);
-		
-		
-		
-		
-		
-		
+
 		setConsistantValsDayOne();
 		setConsistantValsBossesFull();
 		//setConsistantValsBossesOnly();
+		setConsistantValsInvulnerables();
+		
+		
+		
+		
 		setConsistantValsFixObjects();
-		
-		
-		
+
 		randomizeVals();
 		if(objectsSeperate)
 		{
 			randomizeObjectVals();
 		}
+		
+		
+		data.addFile("MOP_14_OBJECT.lst", getObjectData());
+	}
+	private void setConsistantValsInvulnerables() 
+	{
+		// Removes invincible enemies from the pool of randoms
+		for(int i = 0; i<Objects.size(); i++)
+		{
+			for(MobMod Modification : Modifications)
+			{
+				if(Objects.get(i).getModCode()==Modification.getModCode()&&Modification.showsHP())
+				{
+					randomizedList[i]=Objects.get(i);
+				}
+			}
+		}
+			
 	}
 	private void randomizeObjectVals() {
 		// TODO Auto-generated method stub
@@ -63,6 +84,7 @@ public class EnemyRandomizer
 	}
 	private void setConsistantValsFixObjects() 
 	{
+		//Starting from end, remove all non-shuffled objects from the shuffle
 		for(int i = randomizedList.length-1; i>=0; i--)
 		{
 			if(randomizedList[i]!=null)
@@ -129,7 +151,7 @@ public class EnemyRandomizer
 		}
 		return false;
 	}
-	public byte[] toArr()
+	private byte[] getObjectData()
 	{
 		byte[] ret = toByteArr(1,2);
 		ret = mergeArrays(ret, toByteArr(randomizedList.length, 2));

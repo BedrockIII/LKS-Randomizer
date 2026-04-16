@@ -23,32 +23,33 @@ public class Main
 	public static void main(String args[])
 	{
 		guiAttempt();
-		System.out.println("LKS Randomizer Version 3.1");
+		System.out.println("LKS Randomizer Version 3.2");
 		System.out.println("**************************");
-		System.out.println("Added:\n\tExport Window");
-		System.out.println("Fixed:\n\tExporting");
-
+		System.out.println("Added:\n\tBetter GUI");
+		System.out.println("Fixed:\n\tMonster Randomizer No Longer includes many unkillable enemies");
+		System.out.println("Removed:\n\tConsole version of randomizer. No Step Back!");
+		System.out.println("Shoutout Seed:\n\t676767");
 		
-		System.out.println("Enter the seed or leave blank for a random one.");
-		seedString = input.nextLine();
-		seed = seedString.hashCode(); //make string a number
+		//System.out.println("Enter the seed or leave blank for a random one.");
+		//seedString = input.nextLine();
+		//seed = seedString.hashCode(); //make string a number
 		
-		System.out.println("Enter the File Path of the Randomizer's Directory");
-		inputName = input.nextLine();
+		//System.out.println("Enter the File Path of the Randomizer's Directory");
+		//inputName = input.nextLine();
 		
-		consoleVersionJobs();
+		//consoleVersionJobs();
 		
-		System.out.println("Do you wish to enable Monster Randomization?");
-		String monsterS = input.nextLine();
-		while(monsterS.length()==0&&!(monsterS.charAt(0)=='y'||monsterS.charAt(0)=='Y'||monsterS.charAt(0)=='N'||monsterS.charAt(0)=='n'))
-		{
-			System.out.println("Oops! I didn't understand that. try typing yes or no");
-			System.out.println("Do you wish to enable the Monster Randomizer?");
-			monsterS = input.nextLine();
-		}
+		//System.out.println("Do you wish to enable Monster Randomization?");
+		//String monsterS = input.nextLine();
+		//while(monsterS.length()==0&&!(monsterS.charAt(0)=='y'||monsterS.charAt(0)=='Y'||monsterS.charAt(0)=='N'||monsterS.charAt(0)=='n'))
+		//{
+			//System.out.println("Oops! I didn't understand that. try typing yes or no");
+			//System.out.println("Do you wish to enable the Monster Randomizer?");
+			//monsterS = input.nextLine();
+		//}
 		
-		if(monsterS.charAt(0)=='y'||monsterS.charAt(0)=='Y')
-		monsterRandomizer();
+		//if(monsterS.charAt(0)=='y'||monsterS.charAt(0)=='Y')
+		//monsterRandomizer();
 	}
 	private static void consoleVersionJobs()
 	{
